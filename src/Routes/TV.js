@@ -1,25 +1,57 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Helmet } from "react-helmet";
-import Section from "../../Components/Section";
-import Loader from "../../Components/Loader";
-import Message from "../../Components/Message";
-import Poster from "../../Components/Poster";
+import { tvApi } from "api";
+import Section from "Components/Section";
+import Loader from "Components/Loader";
+import Message from "Components/Message";
+import Poster from "Components/Poster";
 
 const Container = styled.div`
   padding: 20px;
 `;
 
-const TVPresenter = ({ topRated, popular, airingToday, loading, error }) => (
-  <>
-    <Helmet>
-      <title>TV Shows | Nomflix</title>
-    </Helmet>
-    {loading ? (
+const TV = () => {
+  const [loading, setLoading] = useState(true);
+  const [topRated, settopRated] = useState([]);
+  const [popular, setpopular] = useState([]);
+  const [airingToday, setairingToday] = useState([]);
+  const [error, seterror] = useState("");
+  
+  useEffect(() => {
+    const getTVArr = async () => {
+      try {
+        const {
+            data: { results: topRated }
+          } = await tvApi.topRated();
+          const {
+            data: { results: popular }
+          } = await tvApi.popular();
+          const {
+            data: { results: airingToday }
+          } = await tvApi.airingToday();
+        
+        settopRated(topRated);
+        setpopular(popular);
+        setairingToday(airingToday);
+      } catch (e) {
+        seterror("Can't find TV information.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getTVArr();
+  }, []);
+
+  return loading ? (
+    <>
+      <Helmet>
+        <title>Movies | Nomflix</title>
+      </Helmet>
       <Loader />
-    ) : (
-      <Container>
+    </>
+  ) : (
+    <Container>
         {topRated && topRated.length > 0 && (
           <Section title="Top Rated Shows">
             {topRated.map(show => (
@@ -64,16 +96,7 @@ const TVPresenter = ({ topRated, popular, airingToday, loading, error }) => (
         )}
         {error && <Message color="#e74c3c" text={error} />}
       </Container>
-    )}
-  </>
-);
+  );
+}
 
-TVPresenter.propTypes = {
-  topRated: PropTypes.array,
-  popular: PropTypes.array,
-  airingToday: PropTypes.array,
-  loading: PropTypes.bool.isRequired,
-  error: PropTypes.string
-};
-
-export default TVPresenter;
+export default TV;
