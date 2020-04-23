@@ -46,12 +46,15 @@ const TV = () => {
   return loading ? (
     <>
       <Helmet>
-        <title>Movies | Nomflix</title>
+        <title>TV Shows | Nomflix</title>
       </Helmet>
       <Loader />
     </>
   ) : (
     <Container>
+        <Helmet>
+            <title>TV Shows | Nomflix</title>
+        </Helmet>
         {topRated && topRated.length > 0 && (
           <Section title="Top Rated Shows">
             {topRated.map(show => (
@@ -95,7 +98,7 @@ const TV = () => {
           </Section>
         )}
         {error && <Message color="#e74c3c" text={error} />}
-      </Container>
+    </Container>
   );
 }
 
