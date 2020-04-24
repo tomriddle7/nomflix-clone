@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Helmet } from "react-helmet";
+import { moviesApi, tvApi } from "api";
 import Loader from "Components/Loader";
 
 const Container = styled.div`
@@ -68,8 +68,42 @@ const Overview = styled.p`
   width: 50%;
 `;
 
-const DetailPresenter = ({ result, loading, error }) =>
-  loading ? (
+const Detail = (
+  {
+    match: {params: { id }},
+    history: { push },
+    location: { pathname }
+  }) => {
+  const [loading, setLoading] = useState(true);
+  const [result, setresult] = useState();
+  const [isMovie, setisMovie] = useState(true);
+  const [error, seterror] = useState("");
+  
+  useEffect(() => {
+    const getDetailArr = async () => {
+	  setisMovie(pathname.includes("/movie/"));
+      const parsedId = parseInt(id);
+      if (isNaN(parsedId)) {
+        return push("/");
+      }
+      try {
+        if (isMovie) {
+          const { data } = await moviesApi.movieDetail(parsedId);
+          setresult(data);
+        } else {
+          const { data } = await tvApi.movieDetail(parsedId);
+          setresult(data);
+        }
+      } catch (e) {
+        seterror("Can't find anything.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getDetailArr();
+  }, []);
+
+  return loading ? (
     <>
       <Helmet>
         <title>Loading | Nomflix</title>
@@ -92,7 +126,7 @@ const DetailPresenter = ({ result, loading, error }) =>
           bgImage={
             result.poster_path
               ? `https://image.tmdb.org/t/p/original${result.poster_path}`
-              : require("../../assets/noPosterSmall.png")
+              : require("assets/noPosterSmall.png")
           }
         />
         <Data>
@@ -136,11 +170,6 @@ const DetailPresenter = ({ result, loading, error }) =>
       </Content>
     </Container>
   );
+}
 
-DetailPresenter.propTypes = {
-  result: PropTypes.object,
-  loading: PropTypes.bool.isRequired,
-  error: PropTypes.string
-};
-
-export default DetailPresenter;
+export default Detail;
