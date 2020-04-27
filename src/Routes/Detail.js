@@ -76,12 +76,11 @@ const Detail = (
   }) => {
   const [loading, setLoading] = useState(true);
   const [result, setresult] = useState();
-  const [isMovie, setisMovie] = useState(true);
+  const [isMovie, setisMovie] = useState(pathname.includes("/movie/"));
   const [error, seterror] = useState("");
   
   useEffect(() => {
     const getDetailArr = async () => {
-	  setisMovie(pathname.includes("/movie/"));
       const parsedId = parseInt(id);
       if (isNaN(parsedId)) {
         return push("/");
@@ -91,7 +90,7 @@ const Detail = (
           const { data } = await moviesApi.movieDetail(parsedId);
           setresult(data);
         } else {
-          const { data } = await tvApi.movieDetail(parsedId);
+          const { data } = await tvApi.showDetail(parsedId);
           setresult(data);
         }
       } catch (e) {
