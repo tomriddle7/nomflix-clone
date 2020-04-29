@@ -1,11 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Helmet } from "react-helmet";
-import Loader from "Components/Loader";
+import { moviesApi, tvApi } from "api";
 import Section from "Components/Section";
-import Message from "../../Components/Message";
-import Poster from "../../Components/Poster";
+import Loader from "Components/Loader";
+import Message from "Components/Message";
+import Poster from "Components/Poster";
 
 const Container = styled.div`
   padding: 20px;
@@ -22,16 +22,49 @@ const Input = styled.input`
   width: 100%;
 `;
 
-const SearchPresenter = ({
-  movieResults,
-  tvResults,
-  loading,
-  searchTerm,
-  handleSubmit,
-  error,
-  updateTerm
-}) => (
-  <Container>
+const Search = () => {
+  const [loading, setLoading] = useState(true);
+  const [movieResults, setmovieResults] = useState([]);
+  const [tvResults, settvResults] = useState([]);
+  const [searchTerm, setsearchTerm] = useState();
+  const [error, seterror] = useState("");
+  
+  const handleSubmit = event => {
+    event.preventDefault();
+    setsearchTerm(searchTerm);
+    if (searchTerm !== "") {
+      searchByTerm();
+    }
+  };
+
+  const updateTerm = event => {
+    const {
+      target: { value }
+    } = event;
+    setsearchTerm(value);
+  };
+
+  const searchByTerm = async () => {
+    setsearchTerm(searchTerm);
+    setLoading(true);
+    try {
+      const {
+        data: { results: movieResults }
+      } = await moviesApi.search(searchTerm);
+      const {
+        data: { results: tvResults }
+      } = await tvApi.search(searchTerm);
+      setmovieResults(movieResults);
+      settvResults(tvResults);
+    } catch (e) {
+      seterror("Can't find results.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Container>
     <Helmet>
       <title>Search | Nomflix</title>
     </Helmet>
@@ -53,7 +86,7 @@ const SearchPresenter = ({
                 key={movie.id}
                 id={movie.id}
                 imageUrl={movie.poster_path}
-                title={movie.original_title}
+                title={movie.title}
                 rating={movie.vote_average}
                 year={movie.release_date.substring(0, 4)}
                 isMovie={true}
@@ -68,7 +101,7 @@ const SearchPresenter = ({
                 key={show.id}
                 id={show.id}
                 imageUrl={show.poster_path}
-                title={show.original_name}
+                title={show.name}
                 rating={show.vote_average}
                 year={show.first_air_date.substring(0, 4)}
               />
@@ -85,16 +118,7 @@ const SearchPresenter = ({
       </>
     )}
   </Container>
-);
+  );
+}
 
-SearchPresenter.propTypes = {
-  movieResults: PropTypes.array,
-  tvResults: PropTypes.array,
-  error: PropTypes.string,
-  searchTerm: PropTypes.string,
-  loading: PropTypes.bool.isRequired,
-  handleSubmit: PropTypes.func.isRequired,
-  updateTerm: PropTypes.func.isRequired
-};
-
-export default SearchPresenter;
+export default Search;
