@@ -113,7 +113,7 @@ const Detail = (
     <Container>
       <Helmet>
         <title>
-          {result.original_title ? result.original_title : result.original_name}{" "}
+          {result.title ? result.title : result.name}{" "}
           | Nomflix
         </title>
       </Helmet>
@@ -130,9 +130,9 @@ const Detail = (
         />
         <Data>
           <Title>
-            {result.original_title
-              ? result.original_title
-              : result.original_name}
+            {result.title
+              ? result.title
+              : result.name}
           </Title>
           <ItemContainer>
             <Item>
