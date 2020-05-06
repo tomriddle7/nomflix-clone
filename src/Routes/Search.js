@@ -26,7 +26,7 @@ const Search = () => {
   const [loading, setLoading] = useState(true);
   const [movieResults, setmovieResults] = useState([]);
   const [tvResults, settvResults] = useState([]);
-  const [searchTerm, setsearchTerm] = useState();
+  const [searchTerm, setsearchTerm] = useState("");
   const [error, seterror] = useState("");
   
   const handleSubmit = event => {
@@ -103,7 +103,7 @@ const Search = () => {
                 imageUrl={show.poster_path}
                 title={show.name}
                 rating={show.vote_average}
-                year={show.first_air_date.substring(0, 4)}
+                year={show.first_air_date ? show.first_air_date.substring(0, 4) : ""}
               />
             ))}
           </Section>
